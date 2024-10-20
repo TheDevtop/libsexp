@@ -28,14 +28,14 @@ private let tokFalse: String = ":false"
 
 /// Generate a list with valid tokens
 private func lex(_ input: String) -> [String] {
-    guard let lexer = try? Regex(#"([\(\)]|\"[^\"]*\"|[^\s\(\)]+)"#) else {
-        return ["(", ")"]
+    guard let lexer: Regex<AnyRegexOutput> = try? Regex(#"(\(|\)|\"[^\"]*\"|'[^']*'|[^\s()]+)"#) else {
+        return [":err"]
     }
     let matches = input.matches(of: lexer)
     return matches.map { match in String(input[match.range])}
 }
 
-/// Parse and decode symbol types
+/// Parse and decode symbol and atom types
 private func parseSymbol(_ token: String) -> Sexp {
     // Check if atom
     if token.starts(with: ":") {
@@ -52,7 +52,7 @@ private func parseSymbol(_ token: String) -> Sexp {
 
 /// Parse and decode value types
 private func parseValue(_ token: String) -> Sexp {
-    if token.contains("\"") {
+    if token.starts(with: "\"") || token.starts(with: "\'"){
         return Sexp.quote(token)
     }
     if let ret: Int = Int(token) {

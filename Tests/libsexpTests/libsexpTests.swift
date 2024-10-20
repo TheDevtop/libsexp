@@ -18,6 +18,9 @@ import libsexp
     ast = Decode("\"Hello, world!\"")
     #expect(ast == libsexp.Sexp.quote("\"Hello, world!\""))
 
+     ast = Decode("'Cite your sources'")
+    #expect(ast == libsexp.Sexp.quote("'Cite your sources'"))
+
     ast = Decode("69")
     #expect(ast == libsexp.Sexp.number(69))
 
