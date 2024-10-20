@@ -3,16 +3,28 @@
     Written by Thijs Haker
 */
 
-public enum Sexp {
+public enum Sexp : Equatable, Sendable {
     // List type
     case list([Sexp])
 
-    // Atom types
+    // Value types
     case quote(String)
     case number(Int)
     case float(Float)
+
+    // Symbol types
+    case atom(String)
+    case bool(Bool)
     case symbol(String)
 }
+
+// Ok and error atoms
+public let AtomOk: Sexp = Sexp.atom(":ok")
+public let AtomErr: Sexp = Sexp.atom(":err")
+
+// Boolean tokens: String -> Atom -> Bool
+private let tokTrue: String = ":true"
+private let tokFalse: String = ":false"
 
 /// Generate a list with valid tokens
 private func lex(_ input: String) -> [String] {
@@ -23,8 +35,23 @@ private func lex(_ input: String) -> [String] {
     return matches.map { match in String(input[match.range])}
 }
 
-/// Parse and decode atom types
-private func parseAtom(_ token: String) -> Sexp {
+/// Parse and decode symbol types
+private func parseSymbol(_ token: String) -> Sexp {
+    // Check if atom
+    if token.starts(with: ":") {
+        // Check if boolean
+        if token == tokTrue {
+            return Sexp.bool(true)
+        } else if token == tokFalse {
+            return Sexp.bool(false)
+        }
+        return Sexp.atom(token)
+    }
+    return Sexp.symbol(token)
+}
+
+/// Parse and decode value types
+private func parseValue(_ token: String) -> Sexp {
     if token.contains("\"") {
         return Sexp.quote(token)
     }
@@ -34,7 +61,7 @@ private func parseAtom(_ token: String) -> Sexp {
     if let ret: Float = Float(token) {
         return Sexp.float(ret)
     }
-    return Sexp.symbol(token)
+    return parseSymbol(token)
 }
 
 /// Decode string to S-expression
@@ -51,16 +78,16 @@ public func Decode(_ input: String) -> Sexp {
             ret = []
             case ")":
             guard var pret: [Sexp] = stack.popLast() else {
-                return Sexp.list(ret)
+                return AtomErr
             }
             pret.append(Sexp.list(ret))
             ret = pret
             default:
-            ret.append(parseAtom(tok))
+            ret.append(parseValue(tok))
         }
     }
     if ret.count == 0 {
-        return Sexp.list(ret)
+        return AtomErr
     }
     return ret[0]
 }
@@ -83,5 +110,16 @@ public func Encode(_ exp: Sexp) -> String {
     
     case .symbol(let s):
         return "\(s)"
+    
+    case .atom(let a):
+        return "\(a)"
+    
+    case .bool(let b):
+        switch b {
+        case true:
+            return tokTrue
+        case false:
+            return tokFalse
+        }
     }
 }
