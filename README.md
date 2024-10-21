@@ -33,7 +33,7 @@ Value types:
 - Float `4.20`
 
 Symbol types:
-- Atom (based on Clojure keyword) `:err`, `:foobar`
+- Atom (based on Elixir atoms) `:err`, `:foobar`
 - Boolean `:true` or `:false`
 - Symbol `+`, `foobar`, `write-file`
 
