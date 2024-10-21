@@ -3,11 +3,11 @@
 An S-Expression parser library, written in Swift.
 
 I am inspired by Lisp, and wanted to write a parser in a strongly-typed language.
-And so I did. 
+So I did. 
 
 ### On usage
 
-There are two important functions, **encode** and **decode**.
+There are two important functions, **decode** and **encode**.
 
 ```swift
 public func Decode(_ input: String) -> Sexp
@@ -40,5 +40,11 @@ Symbol types:
 The order in which there are listed, is the order in which they are parsed.
 Thus there is a hierarchy of types, which determines the output of the decode function.
 
+### On atoms
+
+Atoms are different from symbols, in that atoms won't evaluate to anything.
+The symbol `foo` may evaluate to a procedure, a number, or even an atom.
+The atom `:foo` will always resolve to `:foo`.
+
 There are also two special atoms: `:ok` and `:err`.
-These atoms eliminate the need for nil/null types.
+These atoms perform the same function as the [result](https://doc.rust-lang.org/std/result/) type in Rust.

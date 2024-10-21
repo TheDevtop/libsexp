@@ -72,7 +72,7 @@ private func parseValue(_ token: String) -> Sexp {
     return parseSymbol(token)
 }
 
-/// Decode string to S-expression
+/// Decode string to S-Expression
 public func Decode(_ input: String) -> Sexp {
     let tokens: [String] = lex(input)
 
@@ -100,7 +100,7 @@ public func Decode(_ input: String) -> Sexp {
     return ret[0]
 }
 
-/// (Re)encode S-expression to string
+/// (Re)encode S-Expression to string
 public func Encode(_ exp: Sexp) -> String {
     switch exp {
     case .list(let l):
