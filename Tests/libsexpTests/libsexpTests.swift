@@ -36,6 +36,9 @@ import libsexp
     ast = Decode(":false")
     #expect(ast == Sexp.bool(false))
 
+    ast = Decode(":")
+    #expect(ast != Sexp.atom(":"))
+
     ast = Decode("eval")
     #expect(ast == libsexp.Sexp.symbol("eval"))
 }

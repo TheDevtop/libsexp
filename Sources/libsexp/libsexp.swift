@@ -35,10 +35,18 @@ private func lex(_ input: String) -> [String] {
     return matches.map { match in String(input[match.range])}
 }
 
+/// Check if atom
+private func isAtom(_ token: String) -> Bool {
+    if token.count > 1 && token.starts(with: ":") {
+        return true
+    }
+    return false
+}
+
 /// Parse and decode symbol and atom types
 private func parseSymbol(_ token: String) -> Sexp {
     // Check if atom
-    if token.starts(with: ":") {
+    if isAtom(token) {
         // Check if boolean
         if token == tokTrue {
             return Sexp.bool(true)
