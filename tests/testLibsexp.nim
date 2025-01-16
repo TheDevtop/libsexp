@@ -25,12 +25,6 @@ test "Test encode(), decode()":
   let oresult = libsexp.encode(exp)
   check iresult == oresult
 
-# test "Test nil":
-#   const input = ":nil"
-#   let exp = libsexp.decode(input)
-#   let output = libsexp.encode(exp)
-#   check exp.tag == tNil and output == ""
-
 test "Test string":
   const input = "\"Hello, world!\""
   let exp = libsexp.decode(input)
@@ -51,6 +45,19 @@ test "Test newList()":
       Exp(tag: tagInt, valInt: 3))
   let output = encode(Exp(tag: tagList, valList: input))
   check output == "(1 2 3)"
+
+test "Test mapQuotes() and unmapQuotes":
+  check mapQuotes("1 2 3") == "\"1 2 3\"" and unmapQuotes("\"3 2 1\"") == "3 2 1"
+
+test "Test encoded newOk()":
+  let goodOp = newOk(Exp(tag: tagInt, valInt: 10))
+  let output = encode(goodOp)
+  check output == "(:ok 10)"
+
+test "Test encoded newError()":
+  let badOp = newError("Get rekt!")
+  let output = encode(badOp)
+  check output == "(:err \"Get rekt!\")"
 
 test "Test int, float":
   const input = "(42 3.14)"

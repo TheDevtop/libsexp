@@ -56,8 +56,30 @@ proc toList*(cons: Cons): List =
   nlist.insert(cons.car, 0)
   return nlist
 
+proc isString(token: string): bool =
+  if strutils.startsWith(token, "\"") and strutils.endsWith(token, "\""):
+    return true
+  return false
+
+proc isAtom(token: string): bool =
+  if token.len > 1 and strutils.startsWith(token, ":"):
+    return true
+  return false
+
+# Map quotes onto string
+proc mapQuotes*(input: string): string =
+  if isString(input):
+    return input
+  return "\""&input&"\""
+
+# Unmap quotes from string
+proc unmapQuotes*(input: string): string =
+  if not isString(input):
+    return input
+  return strutils.strip(s = input, chars = {'"'})
+
 # Allocate error -> (:err "Content to error")
-proc newError*(mesg: string): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: tokErr), Exp(tag: tagString, valString: mesg)])
+proc newError*(mesg: string): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: tokErr), Exp(tag: tagString, valString: mapQuotes(mesg))])
 
 # Allocate ok value -> (:ok exp)
 proc newOk*(exp: Exp): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: tokOk), exp])
@@ -68,26 +90,6 @@ proc newList*(exps: varargs[Exp]): List =
   for exp in exps:
     list.add(exp)
   return list
-
-# proc encodeBool(b: bool): string =
-#   if b:
-#     return tokTrue
-#   return tokFalse
-
-# proc isNil(token: string): bool =
-#   if token == tokNil:
-#     return true
-#   return false
-
-proc isString(token: string): bool =
-  if strutils.startsWith(token, "\"") and strutils.endsWith(token, "\""):
-    return true
-  return false
-
-proc isAtom(token: string): bool =
-  if token.len > 1 and strutils.startsWith(token, ":"):
-    return true
-  return false
 
 # Match input with s-expression regex, return matching tokens
 proc lex(input: string): seq[string] =
@@ -144,7 +146,7 @@ proc parse(tokens: seq[string]): Exp =
   
   # If nothing was parsed, return error
   if ret.len() == 0:
-    return newError("Parsed empty string")
+    return newError("Parsed empty input string")
   return ret[0]
 
 # Decode strings to s-expressions

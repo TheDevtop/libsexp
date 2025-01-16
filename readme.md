@@ -10,7 +10,7 @@ There are two important functions, **decode** and **encode**.
 proc decode*(input: string): Exp
 ```
 Decode takes an input string and outputs an S-Expression object.
-If any error occurs, it throws an exception.
+If any error occurs, it returns an error.
 
 ```nim
 proc encode*(input: Exp): string
@@ -30,7 +30,6 @@ Value types:
 - Float `4.20`
 - Atom (also known as keywords) `:err`, `:foobar`
 - Boolean (subtype of atom) `:true` or `:false`
-- Nil (subtype of atom) `:nil`
 - Symbol `+`, `foobar`, `write-file`
 
 The order in which there are listed, is the order in which they are parsed.
@@ -42,10 +41,23 @@ Atoms are different from symbols, in that atoms won't evaluate to anything.
 The symbol `foo` may evaluate to a procedure, a number, or even an atom.
 The atom `:foo` will always resolve to `:foo`.
 
-There are three special atoms:
+There are four special atoms:
 - Boolean true `:true`
 - Boolean false `:false`
-- Nil `:nil`
+- Operational ok `:ok`
+- Operational error `:err`
+
+You can create operational messages with the following functions:
+
+```nim
+proc newOk*(exp: Exp): Exp
+```
+The newOk function takes as input any expression and returns `(:ok exp)`.
+
+```nim
+proc newError*(mesg: string): Exp
+```
+The newError function takes in an error messages and returns `(:err "Message content")`.
 
 ### On cons
 
