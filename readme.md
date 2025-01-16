@@ -22,7 +22,7 @@ Encode takes an S-Expression object and returns a string that contains the S-Exp
 An S-Expression can be one of several types.
 
 List types:
-- List `()`, `(+ 1 2 3)`
+- List `()`, `(+ 1 2 3)`, `(+ 2 (* 3 4))`
 
 Value types:
 - String `"Hello, world!"`
@@ -46,3 +46,22 @@ There are three special atoms:
 - Boolean true `:true`
 - Boolean false `:false`
 - Nil `:nil`
+
+### On cons
+
+```nim
+type Cons* = tuple[car: Exp, cdr: List]
+```
+Cons or construct cells are the abstraction used to deconstruct a list to its component parts.
+Namely car and cdr, which I use to get the procedure and operand symbols. 
+For convenience there are conversion functions.
+
+```nim
+proc toCons*(list: List): Cons
+```
+This function takes in a list and returns a construct cell.
+
+```nim
+proc toList*(cons: Cons): List
+```
+While this functions takes in a construct cell, and return its combination as a list.
