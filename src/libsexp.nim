@@ -13,30 +13,29 @@ type
   Symbol* = string
   # Type tags
   ExpTag* = enum
-    tInt,
-    tFloat,
-    tString,
-    tAtom,
-    tBool,
-    tNil,
-    tSymbol,
-    tList
+    tagInt,
+    tagFloat,
+    tagString,
+    tagAtom,
+    tagBool,
+    tagSymbol,
+    tagList
   # Expressions are the base objects in Lisp
   Exp* = ref object
     case tag*: ExpTag
-    of tInt: vInt*: int
-    of tFloat: vFloat*: float
-    of tString: vString*: string
-    of tAtom: vAtom*: Atom
-    of tBool: vBool*: bool
-    of tNil: nil
-    of tSymbol: vSymbol*: Symbol
-    of tList: vList*: List
+    of tagInt: valInt*: int
+    of tagFloat: valFloat*: float
+    of tagString: valString*: string
+    of tagAtom: valAtom*: Atom
+    of tagBool: valBool*: bool
+    of tagSymbol: valSymbol*: Symbol
+    of tagList: valList*: List
   List* = seq[Exp]
 
 const tokTrue: string = ":true"
 const tokFalse: string = ":false"
-const tokNil: string = ":nil"
+const tokOk: string = ":ok"
+const tokErr: string = ":err"
 
 # Construct cell, not used in parser
 type Cons* = tuple[car: Exp, cdr: List]
