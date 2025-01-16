@@ -57,9 +57,13 @@ test "Test int, float":
   let output = libsexp.decode(input)
   check output.vList[0].tag == tInt and output.vList[1].tag == tFloat
 
-test "Test car(), cdr()":
-  const input = "(foo bar baz)"
-  let exp = decode(input)
-  let ecar = car(exp.vList)
-  let ecdr = cdr(exp.vList)
-  check ecar.vSymbol == "foo" and ecdr[1].vSymbol == "baz"
+test "Test list.toCons()":
+  let exp = decode("(foo bar baz)")
+  let mcons: Cons = exp.vList.toCons()
+  check mcons.car.vSymbol == "foo" and len(mcons.cdr) == 2
+
+test "Test cons.toList()":
+  let mcons: Cons = (Exp(tag: tSymbol, vSymbol: "nine"), @[Exp(tag: tInt, vInt: 9)])
+  let mlist: List = mcons.toList()
+  let output: string = encode(Exp(tag: tList, vList: mlist))
+  check output == "(nine 9)"

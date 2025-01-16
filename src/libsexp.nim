@@ -38,17 +38,22 @@ const tokTrue: string = ":true"
 const tokFalse: string = ":false"
 const tokNil: string = ":nil"
 
-# Get the first element of a list
-proc car*(list: List): Exp =
-  if len(list) < 1:
-    return Exp(tag: tNil)
-  return list[0]
+# Construct cell, not used in parser
+type Cons* = tuple[car: Exp, cdr: List]
 
-# Get the rest elements of the list
-proc cdr*(list: List): List =
-  if len(list) < 2:
-    return @[]
-  return list[1..^1]
+# Convert a list to construct cell
+proc toCons*(list: List): Cons =
+  if len(list) < 1:
+    return (car: Exp(tag: tNil), cdr: @[])
+  elif len(list) == 1:
+    return (car: list[0], cdr: @[])
+  return (car: list[0], cdr: list[1..^1])
+
+# Convert a construct cell to a list
+proc toList*(cons: Cons): List =
+  var nlist: List = cons.cdr
+  nlist.insert(cons.car, 0)
+  return nlist
 
 # Allocate new list from variadic expressions
 proc newList*(exps: varargs[Exp]): List =
