@@ -8,8 +8,14 @@ test "Test rosetta":
   let output = encode(exp)
   check input == output
 
+test "Test empty input":
+  const input = ""
+  let exp = decode(input)
+  check exp.tag == tNil
+
 test "Test encode()":
-  let input: Exp = Exp(tag: tList, vList: @[Exp(tag: tSymbol, vSymbol: "foo"), Exp(tag: tSymbol, vSymbol: "bar")])
+  let input: Exp = Exp(tag: tList, vList: @[Exp(tag: tSymbol, vSymbol: "foo"),
+      Exp(tag: tSymbol, vSymbol: "bar")])
   let result: string = "(foo bar)"
   check libsexp.encode(input) == result
 
@@ -18,6 +24,12 @@ test "Test encode(), decode()":
   let exp = libsexp.decode(iresult)
   let oresult = libsexp.encode(exp)
   check iresult == oresult
+
+test "Test nil":
+  const input = ":nil"
+  let exp = libsexp.decode(input)
+  let output = libsexp.encode(exp)
+  check exp.tag == tNil and output == ""
 
 test "Test string":
   const input = "\"Hello, world!\""
@@ -29,21 +41,18 @@ test "Test atom":
   let exp = libsexp.decode(input)
   check exp.tag == tAtom and exp.vAtom == input
 
-test "Test newAtom()":
-  let okAtom: Atom = newAtom("ok")
-  check okAtom == ":ok"
-
 test "Test empty list":
   const input = "()"
   let exp = libsexp.decode(input)
   check exp.tag == tList and exp.vList.len() == 0
 
 test "Test newList()":
-  let input: List = newList(Exp(tag: tInt, vInt: 1), Exp(tag: tInt, vInt: 2), Exp(tag: tInt, vInt: 3))
+  let input: List = newList(Exp(tag: tInt, vInt: 1), Exp(tag: tInt, vInt: 2),
+      Exp(tag: tInt, vInt: 3))
   let output = encode(Exp(tag: tList, vList: input))
   check output == "(1 2 3)"
 
-test "Test int/float":
+test "Test int, float":
   const input = "(42 3.14)"
   let output = libsexp.decode(input)
   check output.vList[0].tag == tInt and output.vList[1].tag == tFloat

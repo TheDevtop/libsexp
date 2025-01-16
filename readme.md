@@ -2,12 +2,6 @@
 
 An S-Expression parser library, written in Nim.
 
-Lisp and its innovative constructs, continue to inspire me.
-The philosophy of combination and abstraction, as formulated in [SICP](https://web.mit.edu/6.001/6.037/sicp.pdf) left me wanting to write my own Lisp environment.
-This repository is the first step in that direction.
-
-I hope you may find use in this. 
-
 ### On usage
 
 There are two important functions, **decode** and **encode**.
@@ -36,6 +30,7 @@ Value types:
 - Float `4.20`
 - Atom (also known as keywords) `:err`, `:foobar`
 - Boolean (subtype of atom) `:true` or `:false`
+- Nil (subtype of atom) `:nil`
 - Symbol `+`, `foobar`, `write-file`
 
 The order in which there are listed, is the order in which they are parsed.
@@ -46,3 +41,8 @@ Thus there is a hierarchy of types, which determines the output of the decode fu
 Atoms are different from symbols, in that atoms won't evaluate to anything.
 The symbol `foo` may evaluate to a procedure, a number, or even an atom.
 The atom `:foo` will always resolve to `:foo`.
+
+There are three special atoms:
+- Boolean true `:true`
+- Boolean false `:false`
+- Nil `:nil`

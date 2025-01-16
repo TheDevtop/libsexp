@@ -18,6 +18,7 @@ type
     tString,
     tAtom,
     tBool,
+    tNil,
     tSymbol,
     tList
   # Expressions are the base objects in Lisp
@@ -28,17 +29,19 @@ type
     of tString: vString*: string
     of tAtom: vAtom*: Atom
     of tBool: vBool*: bool
+    of tNil: nil
     of tSymbol: vSymbol*: Symbol
     of tList: vList*: List
   List* = seq[Exp]
 
 const tokTrue: string = ":true"
 const tokFalse: string = ":false"
+const tokNil: string = ":nil"
 
 # Get the first element of a list
 proc car*(list: List): Exp =
   if len(list) < 1:
-    return Exp(tag: tList, vList: @[])
+    return Exp(tag: tNil)
   return list[0]
 
 # Get the rest elements of the list
@@ -47,9 +50,6 @@ proc cdr*(list: List): List =
     return @[]
   return list[1..^1]
 
-# Allocate new atom
-proc newAtom*(token: string): Atom = ":"&token
-
 # Allocate new list from variadic expressions
 proc newList*(exps: varargs[Exp]): List =
   var list: List
@@ -57,13 +57,13 @@ proc newList*(exps: varargs[Exp]): List =
     list.add(exp)
   return list
 
-proc boolToken(b: bool): string =
+proc encodeBool(b: bool): string =
   if b:
     return tokTrue
   return tokFalse
 
-proc isBool(token: string): bool =
-  if token == tokTrue or token == tokFalse:
+proc isNil(token: string): bool =
+  if token == tokNil:
     return true
   return false
 
@@ -88,23 +88,32 @@ proc lex(input: string): seq[string] =
 
 # Parse tokens that are not list tokens
 proc parseValue(token: string): Exp =
+  # If string
   if isString(token):
     return Exp(tag: tString, vString: token)
+  # If int
   try:
     return Exp(tag: tInt, vInt: strutils.parseInt(token))
   except:
     discard
+  # If float
   try:
     return Exp(tag: tFloat, vFloat: strutils.parseFloat(token))
   except:
     discard
+  # If atom or subtype
   if isAtom(token):
+    # If boolean
     if token == tokTrue:
       return Exp(tag: tBool, vBool: true)
     elif token == tokFalse:
       return Exp(tag: tBool, vBool: false)
-    else:
-      return Exp(tag: tAtom, vAtom: Atom(token))
+    # If nil
+    if isNil(token):
+      return Exp(tag: tNil)
+    # Else atom
+    return Exp(tag: tAtom, vAtom: Atom(token))
+  # If nothing else, be a symbol
   return Exp(tag: tSymbol, vSymbol: Symbol(token))
 
 # Constructs expression from tokens
@@ -125,7 +134,7 @@ proc parse(tokens: seq[string]): Exp =
       ret.add(parseValue(tok))
 
   if ret.len() == 0:
-    return Exp(tag: tList, vList: @[])
+    return Exp(tag: tNil)
   return ret[0]
 
 # Decode strings to s-expressions
@@ -144,7 +153,9 @@ proc encode*(input: Exp): string =
     of tAtom:
       ret.add(input.vAtom)
     of tBool:
-      ret.add(boolToken(input.vBool))
+      ret.add(encodeBool(input.vBool))
+    of tNil:
+      discard
     of tSymbol:
       ret.add(input.vSymbol)
     of tList:
