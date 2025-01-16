@@ -15,7 +15,7 @@ If any error occurs, it returns an error.
 ```nim
 proc encode*(input: Exp): string
 ```
-Encode takes an S-Expression object and returns a string that contains the S-Expression representation of the object.
+Encode takes an S-Expression object and returns a string that contains the S-Expression representation of that object.
 
 ### On type hierarchy
 
@@ -47,7 +47,7 @@ There are four special atoms:
 - Operational ok `:ok`
 - Operational error `:err`
 
-You can create operational messages with the following functions:
+You can create operational values with the following functions:
 
 ```nim
 proc newOk*(exp: Exp): Exp

@@ -11,7 +11,7 @@ test "Test rosetta":
 test "Test empty input":
   const input = ""
   let exp = decode(input)
-  echo(repr(exp))
+  check exp.valList[0].valAtom == Atom(":err")
 
 test "Test encode()":
   let input: Exp = Exp(tag: tagList, valList: @[Exp(tag: tagSymbol, valSymbol: "foo"),
@@ -46,7 +46,7 @@ test "Test newList()":
   let output = encode(Exp(tag: tagList, valList: input))
   check output == "(1 2 3)"
 
-test "Test mapQuotes() and unmapQuotes":
+test "Test mapQuotes() and unmapQuotes()":
   check mapQuotes("1 2 3") == "\"1 2 3\"" and unmapQuotes("\"3 2 1\"") == "3 2 1"
 
 test "Test encoded newOk()":
