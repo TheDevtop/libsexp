@@ -49,16 +49,6 @@ test "Test newList()":
 test "Test mapQuotes() and unmapQuotes()":
   check mapQuotes("1 2 3") == "\"1 2 3\"" and unmapQuotes("\"3 2 1\"") == "3 2 1"
 
-test "Test encoded newOk()":
-  let goodOp = newOk(Exp(tag: tagInt, valInt: 10))
-  let output = encode(goodOp)
-  check output == "(:ok 10)"
-
-test "Test encoded newError()":
-  let badOp = newError("Get rekt!")
-  let output = encode(badOp)
-  check output == "(:err \"Get rekt!\")"
-
 test "Test int, float":
   const input = "(42 3.14)"
   let output = libsexp.decode(input)

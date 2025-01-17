@@ -39,13 +39,17 @@ const tokFalse: string = ":false"
 const tokOk: string = ":ok"
 const tokErr: string = ":err"
 
+# Operational atoms
+const AtomOk*: Atom = tokOk
+const AtomErr*: Atom = tokErr
+
 # Construct cell
 type Cons* = tuple[car: Exp, cdr: List]
 
 # Convert a list to construct cell
 proc toCons*(list: List): Cons =
   if len(list) < 1:
-    return (car: Exp(tag: tagAtom, valAtom: tokErr), cdr: @[])
+    return (car: Exp(tag: tagAtom, valAtom: AtomErr), cdr: @[])
   elif len(list) == 1:
     return (car: list[0], cdr: @[])
   return (car: list[0], cdr: list[1..^1])
@@ -78,11 +82,11 @@ proc unmapQuotes*(input: string): string =
     return input
   return strutils.strip(s = input, chars = {'"'})
 
-# Allocate error -> (:err "Content to error")
-proc newError*(mesg: string): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: tokErr), Exp(tag: tagString, valString: mapQuotes(mesg))])
+# Allocate message -> (:err "Something went wrong")
+proc newMessage*(atom: Atom, mesg: string): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: atom), Exp(tag: tagString, valString: mapQuotes(mesg))])
 
-# Allocate ok value -> (:ok exp)
-proc newOk*(exp: Exp): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: tokOk), exp])
+# Allocate result -> (:ok 10), (:err :false)
+proc newResult*(atom: Atom, exp: Exp): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: atom), exp])
 
 # Allocate new list from variadic expressions
 proc newList*(exps: varargs[Exp]): List =
@@ -93,6 +97,7 @@ proc newList*(exps: varargs[Exp]): List =
 
 # Match input with s-expression regex, return matching tokens
 proc lex(input: string): seq[string] =
+  # Compiled regular expression
   const crex: regex.Regex2 = regex.re2("(\"[^\"]*\"|\\(|\\)|\"|[^\\s()\"]+)")
   var tokens: seq[string]
 
@@ -146,7 +151,7 @@ proc parse(tokens: seq[string]): Exp =
   
   # If nothing was parsed, return error
   if ret.len() == 0:
-    return newError("Parsed empty input string")
+    return newMessage(AtomErr, "Parsed empty input string")
   return ret[0]
 
 # Decode strings to s-expressions
