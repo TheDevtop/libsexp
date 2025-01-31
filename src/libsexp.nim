@@ -7,49 +7,50 @@ from regex import nil
 from std/strutils import nil
 from std/sequtils import nil
 
+# Expression tags
+type ExpTag* = enum 
+  tagNil,
+  tagInt,
+  tagFloat,
+  tagString,
+  tagKeyword,
+  tagBool,
+  tagSymbol,
+  tagList
+
 type
-  # Atoms evaluate to themselves
-  Atom* = string
+  # Keywords evaluate to themselves
+  Keyword* = string
+
   # Symbol can evaluate to anything
   Symbol* = string
-  # Type tags, makes expression possible
-  ExpTag* = enum
-    tagInt,
-    tagFloat,
-    tagString,
-    tagAtom,
-    tagBool,
-    tagSymbol,
-    tagList
+    
   # Expression is the base type
   Exp* = ref object
     case tag*: ExpTag
+    of tagNil: discard
     of tagInt: valInt*: int
     of tagFloat: valFloat*: float
     of tagString: valString*: string
-    of tagAtom: valAtom*: Atom
+    of tagKeyword: valKeyword*: Keyword
     of tagBool: valBool*: bool
     of tagSymbol: valSymbol*: Symbol
     of tagList: valList*: List
+  
   # List is an ordered collection of expressions
   List* = seq[Exp]
-
-const tokTrue: string = ":true"
-const tokFalse: string = ":false"
-const tokOk: string = ":ok"
-const tokErr: string = ":err"
-
-# Operational atoms
-const AtomOk*: Atom = tokOk
-const AtomErr*: Atom = tokErr
 
 # Construct cell
 type Cons* = tuple[car: Exp, cdr: List]
 
+const
+  tokTrue: string = "#true"
+  tokFalse: string = "#false"
+
 # Convert a list to construct cell
 proc toCons*(list: List): Cons =
   if len(list) < 1:
-    return (car: Exp(tag: tagAtom, valAtom: AtomErr), cdr: @[])
+    return (car: Exp(tag: tagNil), cdr: @[])
   elif len(list) == 1:
     return (car: list[0], cdr: @[])
   return (car: list[0], cdr: list[1..^1])
@@ -60,13 +61,15 @@ proc toList*(cons: Cons): List =
   nlist.insert(cons.car, 0)
   return nlist
 
+# Check if string
 proc isString(token: string): bool =
   if strutils.startsWith(token, "\"") and strutils.endsWith(token, "\""):
     return true
   return false
 
-proc isAtom(token: string): bool =
-  if token.len > 1 and strutils.startsWith(token, ":"):
+# Check if keyword
+proc isKeyword(token: string): bool =
+  if strutils.startsWith(token, "#"):
     return true
   return false
 
@@ -81,12 +84,6 @@ proc unmapQuotes*(input: string): string =
   if not isString(input):
     return input
   return strutils.strip(s = input, chars = {'"'})
-
-# Allocate message -> (:err "Something went wrong")
-proc newMessage*(atom: Atom, mesg: string): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: atom), Exp(tag: tagString, valString: mapQuotes(mesg))])
-
-# Allocate result -> (:ok 10), (:err :false)
-proc newResult*(atom: Atom, exp: Exp): Exp = Exp(tag: tagList, valList: @[Exp(tag: tagAtom, valAtom: atom), exp])
 
 # Allocate new list from variadic expressions
 proc newList*(exps: varargs[Exp]): List =
@@ -120,15 +117,15 @@ proc parseValue(token: string): Exp =
     return Exp(tag: tagFloat, valFloat: strutils.parseFloat(token))
   except:
     discard
-  # If atom or subtype
-  if isAtom(token):
+  # If keyword or subtype
+  if isKeyword(token):
     # If boolean
     if token == tokTrue:
       return Exp(tag: tagBool, valBool: true)
     elif token == tokFalse:
       return Exp(tag: tagBool, valBool: false)
     # Else atom
-    return Exp(tag: tagAtom, valAtom: Atom(token))
+    return Exp(tag: tagKeyword, valKeyword: Keyword(token))
   # If nothing else, be a symbol
   return Exp(tag: tagSymbol, valSymbol: Symbol(token))
 
@@ -143,15 +140,15 @@ proc parse(tokens: seq[string]): Exp =
       stack.add(ret)
       ret = @[]
     of ")":
-      var tmpret = stack.pop()
-      tmpret.add(Exp(tag: tagList, valList: ret))
-      ret = tmpret
+      var prevret: List = stack.pop()
+      prevret.add(Exp(tag: tagList, valList: ret))
+      ret = prevret
     else:
       ret.add(parseValue(tok))
   
-  # If nothing was parsed, return error
+  # If nothing was parsed, return nil expression
   if ret.len() == 0:
-    return newMessage(AtomErr, "Parsed empty input string")
+    return Exp(tag: tagNil)
   return ret[0]
 
 # Decode strings to s-expressions
@@ -161,14 +158,16 @@ proc decode*(input: string): Exp = parse(lex(input))
 proc encode*(input: Exp): string =
   var ret: string
   case input.tag:
+    of tagNil:
+      discard
     of tagInt:
       ret.addInt(input.valInt)
     of tagFloat:
       ret.addFloat(input.valFloat)
     of tagString:
       ret.add(input.valString)
-    of tagAtom:
-      ret.add(input.valAtom)
+    of tagKeyword:
+      ret.add(input.valKeyword)
     of tagBool:
       if input.valBool:
         ret.add(tokTrue)
@@ -177,6 +176,6 @@ proc encode*(input: Exp): string =
     of tagSymbol:
       ret.add(input.valSymbol)
     of tagList:
-      let tmpret = strutils.join(sequtils.map(input.valList, encode), " ")
-      ret.add("(" & tmpret & ")")
+      let subret = strutils.join(sequtils.map(input.valList, encode), " ")
+      ret.add("(" & subret & ")")
   return ret
