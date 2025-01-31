@@ -1,5 +1,5 @@
 # Package
-version       = "2.2.0"
+version       = "3.0.0"
 author        = "Thijs Haker"
 description   = "S-Expression library"
 license       = "MIT"

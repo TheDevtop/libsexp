@@ -25,39 +25,26 @@ List types:
 - List `()`, `(+ 1 2 3)`, `(+ 2 (* 3 4))`
 
 Value types:
+- Nil
 - String `"Hello, world!"`
 - Int `42`, `-69`
 - Float `4.20`
-- Atom (also known as keywords) `:err`, `:foobar`
-- Boolean (subtype of atom) `:true` or `:false`
+- Keywords `#foobar`, `#error`
+- Boolean (subtype of keyword) `#true` or `#false`
 - Symbol `+`, `foobar`, `write-file`
 
 The order in which there are listed, is the order in which they are parsed.
 Thus there is a hierarchy of types, which determines the output of the decode function.
 
-### On atoms
+### On keywords
 
-Atoms are different from symbols, in that atoms won't evaluate to anything.
-The symbol `foo` may evaluate to a procedure, a number, or even an atom.
-The atom `:foo` will always resolve to `:foo`.
+Keywords are different from symbols, in that keywords won't evaluate to anything.
+The symbol `foo` may evaluate to a procedure, a number, or even an keyword.
+The keyword `#foo` will always resolve to `#foo`.
 
-There are four special atoms:
-- Boolean true `:true`
-- Boolean false `:false`
-- Operational ok `:ok`
-- Operational error `:err`
-
-You can create operational values with the following functions:
-
-```nim
-proc newOk*(exp: Exp): Exp
-```
-The newOk function takes as input any expression and returns `(:ok exp)`.
-
-```nim
-proc newError*(mesg: string): Exp
-```
-The newError function takes in an error messages and returns `(:err "Message content")`.
+There are two special keywords:
+- Boolean true `#true`
+- Boolean false `#false`
 
 ### On cons
 

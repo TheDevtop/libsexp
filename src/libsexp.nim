@@ -124,7 +124,7 @@ proc parseValue(token: string): Exp =
       return Exp(tag: tagBool, valBool: true)
     elif token == tokFalse:
       return Exp(tag: tagBool, valBool: false)
-    # Else atom
+    # Else keyword
     return Exp(tag: tagKeyword, valKeyword: Keyword(token))
   # If nothing else, be a symbol
   return Exp(tag: tagSymbol, valSymbol: Symbol(token))

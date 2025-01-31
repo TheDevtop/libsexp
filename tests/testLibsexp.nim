@@ -23,6 +23,14 @@ test "Test keyword":
   let exp: Exp = libsexp.decode(input)
   check exp.tag == tagKeyword and exp.valKeyword == input
 
+test "Test boolean":
+  const input = "(#true #false)"
+  let exp = libsexp.decode(input)
+  let
+    rtrue = exp.valList[0]
+    rfalse = exp.valList[1]
+  check rtrue.valBool == true and rfalse.valBool == false 
+
 test "Test mapQuotes() and unmapQuotes()":
   check mapQuotes("1 2 3") == "\"1 2 3\"" and unmapQuotes("\"3 2 1\"") == "3 2 1"
 
