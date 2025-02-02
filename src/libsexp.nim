@@ -8,7 +8,7 @@ from std/strutils import nil
 from std/sequtils import nil
 
 # Expression tags
-type ExpTag* = enum 
+type ExpTag* = enum
   tagNil,
   tagInt,
   tagFloat,
@@ -24,7 +24,7 @@ type
 
   # Symbol can evaluate to anything
   Symbol* = string
-    
+
   # Expression is the base type
   Exp* = ref object
     case tag*: ExpTag
@@ -36,7 +36,7 @@ type
     of tagBool: valBool*: bool
     of tagSymbol: valSymbol*: Symbol
     of tagList: valList*: List
-  
+
   # List is an ordered collection of expressions
   List* = seq[Exp]
 
@@ -60,6 +60,13 @@ proc toList*(cons: Cons): List =
   var nlist: List = cons.cdr
   nlist.insert(cons.car, 0)
   return nlist
+
+# Check if list only contains item with specified tag
+proc isConsistent*(list: List, tag: ExpTag): bool =
+  for exp in list:
+    if exp.tag != tag:
+      return false
+  return true
 
 # Check if string
 proc isString(token: string): bool =
@@ -145,7 +152,7 @@ proc parse(tokens: seq[string]): Exp =
       ret = prevret
     else:
       ret.add(parseValue(tok))
-  
+
   # If nothing was parsed, return nil expression
   if ret.len() == 0:
     return Exp(tag: tagNil)

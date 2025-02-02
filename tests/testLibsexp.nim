@@ -76,3 +76,9 @@ test "Test cons.toList()":
   let mlist: List = mcons.toList()
   let output: string = encode(Exp(tag: tagList, valList: mlist))
   check output == "(nine 9)"
+
+test "Test list.isConsistent()":
+  let
+    clist = decode("(1 2 3 4)")
+    ilist = decode("(1 #true 3 4)")
+  check isConsistent(clist.valList, tagInt) == true and isConsistent(ilist.valList, tagInt) == false
