@@ -39,6 +39,10 @@ test "Test empty list":
   let exp = libsexp.decode(input)
   check exp.tag == tagList and exp.valList.len() == 0
 
+test "Test stripTag()":
+  let exp = libsexp.decode("\"(1 2 3)\"")
+  check exp.tag == tagString
+
 # Complex tests
 
 test "Test rosetta":

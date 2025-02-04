@@ -47,6 +47,10 @@ const
   tokTrue: string = "#true"
   tokFalse: string = "#false"
 
+# Strip the expression type tag
+proc stripTag*(exp: Exp): ExpTag =
+  return exp.tag
+
 # Convert a list to construct cell
 proc toCons*(list: List): Cons =
   if len(list) < 1:
